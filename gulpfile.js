@@ -13,7 +13,9 @@ const loadKnex = () => {
   return {testConfig, knex};
 };
 
-gulp.task('test', tasks.test(testFiles, argv.ci));
+gulp.task('test', tasks.test(testFiles, argv.ci, {
+  timeout: 10000
+}));
 
 gulp.task('lint', tasks.lint(allJs, argv.ci));
 

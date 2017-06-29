@@ -145,11 +145,9 @@ module.exports = db => {
             t => addQueryOptions(t.withSchema(catalog).select()));
         }
 
-        const validatedQuery = model.query.validate(query)
-          .chain(queryParser.preProcessExpression(mapping.propertyMappings));
-
         return thread(
-          validatedQuery,
+          model.query.validate(query),
+          R.chain(queryParser.preProcessExpression(mapping.propertyMappings)),
           either2Task,
           R.chain(q => queryEntities(
             validatedType,

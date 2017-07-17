@@ -57,6 +57,20 @@ gulp.task('migrate:rollback', function() {
     });
 });
 
+gulp.task('seed:run', function() {
+  console.log('Seeding TEST Database....');
+  const {knex} = loadKnex();
+  return knex.seed.run()
+    .then(function() {
+      console.log('Seeded TEST Database');
+      knex.destroy();
+    })
+    .catch(function(err) {
+      console.error(err);
+      knex.destroy();
+    });
+});
+
 gulp.task('bump', tasks.bump(['./package.json'], argv.level || 'patch'));
 
 gulp.task('default', ['watch', 'lint', 'test']);

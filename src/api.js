@@ -4,6 +4,6 @@ module.exports = db => ({
     query: require('./data/query')(db),
     create: require('./data/create')(db),
     delete: require('./data/delete')(db)
-  }
-    //publish: require('./publish')(db)
+  },
+  publish: require('./publish/publish')(db)
 });

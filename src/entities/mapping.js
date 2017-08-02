@@ -100,7 +100,8 @@ module.exports = R.indexBy(R.prop('entityType'), [
       'id': 'id',
       'name': 'name',
       'schema': 'schema',
-      'folder': 'folder_id'
+      'folder': 'folder_id',
+      'dataModified': 'data_modified'
     }
   },
 

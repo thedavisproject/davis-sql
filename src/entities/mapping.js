@@ -119,8 +119,11 @@ module.exports = R.indexBy(R.prop('entityType'), [
       if(record.type === variable.types.categorical){
         ctor = variable.newCategorical;
       }
-      else if(record.type === variable.types.quantitative){
-        ctor = variable.newQuantitative;
+      else if(record.type === variable.types.numerical){
+        ctor = variable.newNumerical;
+      }
+      else if(record.type === variable.types.text){
+        ctor = variable.newText;
       }
       else{
         throw 'Invalid variable type: ' + record.type;

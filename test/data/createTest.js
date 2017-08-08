@@ -22,7 +22,7 @@ function readFacts(dataSheet){
   return knex('facts').withSchema(catalog).where('data_set_id', '=', dataSheet)
       .orderBy('individual_id', 'asc')
       .orderBy('variable_id', 'asc')
-      .then(R.map(R.evolve({value: v => !R.isNil(v)? +v : v})));
+      .then(R.map(R.evolve({numerical_value: v => !R.isNil(v)? +v : v})));
 }
 
 describe('Data Create', function(){
@@ -42,7 +42,8 @@ describe('Data Create', function(){
     const data = task2Promise(create(catalog, [
       individual.new(1, 1, [
         fact.newCategorical(9, 12),  // John
-        fact.newQuantitative(10, 56) // 56 years old
+        fact.newNumerical(10, 56), // 56 years old
+        fact.newText(12, 'Foo') // 56 years old
       ])
     ]));
 
@@ -50,18 +51,26 @@ describe('Data Create', function(){
 
     return when.all([
       expect(data).to.eventually.equal(1),
-      expect(facts).to.eventually.have.length(2),
+      expect(facts).to.eventually.have.length(3),
       expect(facts.then(results => results[0])).to.eventually.contain({
         individual_id: 1,
         variable_id: 9,
         attribute_id: 12,
-        value: null
+        numerical_value: null,
+        text_value: null
       }),
       expect(facts.then(results => results[1])).to.eventually.contain({
         individual_id: 1,
         variable_id: 10,
         attribute_id: null,
-        value: 56
+        numerical_value: 56,
+        text_value: null
+      }),
+      expect(facts.then(results => results[2])).to.eventually.contain({
+        individual_id: 1,
+        variable_id: 12,
+        attribute_id: null,
+        text_value: 'Foo'
       })
     ]);
   });
@@ -70,11 +79,13 @@ describe('Data Create', function(){
     const data = task2Promise(create(catalog, [
       individual.new(1, 1, [
         fact.newCategorical(9, 12),  // John
-        fact.newQuantitative(10, 56) // 56 years old
+        fact.newNumerical(10, 56), // 56 years old
+        fact.newText(12, 'Foo1') // 56 years old
       ]),
       individual.new(2, 1, [
         fact.newCategorical(9, 13),  // Mary
-        fact.newQuantitative(10, 25) // 25 years old
+        fact.newNumerical(10, 25), // 25 years old
+        fact.newText(12, 'Foo2') // 56 years old
       ])
     ]));
 
@@ -82,59 +93,77 @@ describe('Data Create', function(){
 
     return when.all([
       expect(data).to.eventually.equal(2),
-      expect(facts).to.eventually.have.length(4),
+      expect(facts).to.eventually.have.length(6),
       expect(facts.then(results => results[0])).to.eventually.contain({
         individual_id: 1,
         variable_id: 9,
         attribute_id: 12,
-        value: null
+        numerical_value: null,
+        text_value: null
       }),
       expect(facts.then(results => results[1])).to.eventually.contain({
         individual_id: 1,
         variable_id: 10,
         attribute_id: null,
-        value: 56
+        numerical_value: 56,
+        text_value: null
       }),
       expect(facts.then(results => results[2])).to.eventually.contain({
-        individual_id: 2,
-        variable_id: 9,
-        attribute_id: 13,
-        value: null
+        individual_id: 1,
+        variable_id: 12,
+        attribute_id: null,
+        numerical_value: null,
+        text_value: 'Foo1'
       }),
       expect(facts.then(results => results[3])).to.eventually.contain({
         individual_id: 2,
+        variable_id: 9,
+        attribute_id: 13,
+        numerical_value: null,
+        text_value: null
+      }),
+      expect(facts.then(results => results[4])).to.eventually.contain({
+        individual_id: 2,
         variable_id: 10,
         attribute_id: null,
-        value: 25 
+        numerical_value: 25,
+        text_value: null
+      }),
+      expect(facts.then(results => results[5])).to.eventually.contain({
+        individual_id: 2,
+        variable_id: 12,
+        attribute_id: null,
+        numerical_value: null,
+        text_value: 'Foo2'
       })
     ]);
   });
 
-  it('should write null for empty quantitative facts', function(){
-    
+  it('should write null for empty numerical facts', function(){
+
     const individuals = [
       individual.new(1, 1, [
         fact.newCategorical(9, 12),  // John
-        fact.newQuantitative(10, '') 
+        fact.newNumerical(10, '')
       ])
     ];
-    
+
     const createdIndividuals = task2Promise(create(catalog, individuals));
-    
+
     const results = createdIndividuals.then(() => readFacts(1));
 
     return when.all([
       expect(createdIndividuals).to.eventually.equal(1),
       expect(results).to.eventually.have.length(2),
-      expect(results.then(r => r[1].value)).to.eventually.be.null
+      expect(results.then(r => r[1].numerical_value)).to.eventually.be.null
     ]);
   });
 
-  it('should write null for non-numerical quantitative facts', function() {
+  it('should write null for non-numerical numerical facts', function() {
     var individuals = [
       individual.new(1, 1, [
         fact.newCategorical(9, 12),  // John
-        fact.newQuantitative(10, 'garbage')
+        fact.newNumerical(10, 'garbage')
       ])
     ];
     var createdIndividuals = task2Promise(create(catalog, individuals));
@@ -144,7 +173,7 @@ describe('Data Create', function(){
     return when.all([
       expect(createdIndividuals).to.eventually.equal(1),
       expect(results).to.eventually.have.length(2),
-      expect(results.then(r => r[1].value)).to.eventually.be.null
+      expect(results.then(r => r[1].numerical_value)).to.eventually.be.null
     ]);
   });
 

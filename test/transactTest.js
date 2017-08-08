@@ -42,7 +42,7 @@ describe('Transact', function(){
 
     const resultIgnored = task2Promise(transact(function(storage, commit, rollbackIgnored){
       try {
-        expect(storage).to.have.keys(['entities', 'data', 'transact']);
+        expect(storage).to.have.keys(['entities', 'publish', 'data', 'transact']);
         expect(storage.entities).to.have.keys(['query', 'create', 'update', 'delete']);
         expect(storage.data).to.have.keys(['query', 'create', 'delete']);
         done();
@@ -74,7 +74,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.then(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12,13]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13,14]])));
 
     return when.all([
       expect(result).to.eventually.be.fulfilled,
@@ -107,7 +107,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12,13]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13,14]])));
 
     return when.all([
       expect(result).to.eventually.be.rejected,
@@ -139,7 +139,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.then(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.fulfilled,
@@ -169,7 +169,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.rejected,
@@ -199,7 +199,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.rejected,
@@ -220,7 +220,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.fulfilled,
@@ -245,7 +245,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.rejected,
@@ -266,7 +266,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.rejected,
@@ -288,7 +288,7 @@ describe('Transact', function(){
     }));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['in', 'id', [12]])));
+      entities.query(catalog, variable.entityType, ['in', 'id', [13]])));
 
     return when.all([
       expect(result).to.eventually.be.rejected,
@@ -316,7 +316,7 @@ describe('Transact', function(){
     }, 50));
 
     const checkInsert = result.catch(() => task2Promise(
-      entities.query(catalog, variable.entityType, ['=', 'id', 12])));
+      entities.query(catalog, variable.entityType, ['=', 'id', 13])));
 
     return when.all([
       expect(result).to.eventually.be.rejectedWith(/A transaction timeout occurred/),
@@ -365,7 +365,7 @@ describe('Transact', function(){
           .chain(() => Task.rejected('Some Error'))));
 
       const checkNoInsertHappened = result.catch(() => task2Promise(
-        entities.query(catalog, variable.entityType, ['=', 'id', 12])));
+        entities.query(catalog, variable.entityType, ['=', 'id', 13])));
 
       return when.all([
         expect(result).to.eventually.be.rejectedWith(/Some Error/),
@@ -382,7 +382,7 @@ describe('Transact', function(){
         storage.entities.create(catalog, [newVariable1])));
 
       const checkInsertHappened = result.then(() => task2Promise(
-        entities.query(catalog, variable.entityType, ['=', 'id', 12])));
+        entities.query(catalog, variable.entityType, ['=', 'id', 13])));
 
       return when.all([
         expect(result).to.eventually.be.fulfilled,

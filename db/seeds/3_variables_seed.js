@@ -8,17 +8,18 @@ exports.seed = function(knex, Promise) {
     /*
     id, name, type, key, data_set_id
      */
-    [ 1,         'Location', types.categorical,       'Location',  null ],
-    [ 2,           'Gender', types.categorical,         'Gender',  null ],
-    [ 3, 'Population Count', types.quantitative, 'Population Count',  2 ],
-    [ 4, 'Population Count', types.quantitative, 'Population Count',  3 ],
-    [ 5,     'Vehicle Make', types.categorical,      'Vehicle Make',  4 ],
-    [ 6,    'Vehicle Model', types.categorical,      'Vehicle Model', 4 ],
-    [ 7,       'Horsepower', types.quantitative,        'Horsepower', 4 ],
-    [ 8,      'Average MPG', types.quantitative,       'Average MPG', 4 ],
-    [ 9,             'Name', types.categorical,               'Name', 1 ],
-    [ 10,             'Age', types.quantitative,               'Age', 1 ],
-    [ 11,           'Count', types.quantitative,             'Count', 5 ]
+    [ 1  , 'Location'         , types.categorical , 'Location'         , null ] ,
+    [ 2  , 'Gender'           , types.categorical , 'Gender'           , null ] ,
+    [ 3  , 'Population Count' , types.numerical   , 'Population Count' , 2 ]    ,
+    [ 4  , 'Population Count' , types.numerical   , 'Population Count' , 3 ]    ,
+    [ 5  , 'Vehicle Make'     , types.categorical , 'Vehicle Make'     , 4 ]    ,
+    [ 6  , 'Vehicle Model'    , types.categorical , 'Vehicle Model'    , 4 ]    ,
+    [ 7  , 'Horsepower'       , types.numerical   , 'Horsepower'       , 4 ]    ,
+    [ 8  , 'Average MPG'      , types.numerical   , 'Average MPG'      , 4 ]    ,
+    [ 9  , 'Name'             , types.categorical , 'Name'             , 1 ]    ,
+    [ 10 , 'Age'              , types.numerical   , 'Age'              , 1 ]    ,
+    [ 11 , 'Count'            , types.numerical   , 'Count'            , 5 ]    ,
+    [ 12 , 'CarId'            , types.text        , 'Count'            , 5 ]
   ];
 
   const map = row => ({

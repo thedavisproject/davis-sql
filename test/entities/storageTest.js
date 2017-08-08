@@ -337,7 +337,7 @@ describe('Create Methods', function(){
   it('should create multiple entities of different types in proper tables', function(){
     const entities = [
       variable.newCategorical(null, 'Year', dateProps),
-      variable.newQuantitative(null, 'Height', Object.assign({}, dateProps, {
+      variable.newNumerical(null, 'Height', Object.assign({}, dateProps, {
         scopedDataSet: 1
       })),
       dataSet.new(null, 'Foo Set', Object.assign({}, dateProps, {
@@ -351,16 +351,16 @@ describe('Create Methods', function(){
       expect(results).to.eventually.have.length(3),
 
       expect(results.then(r => r[0])).to.eventually.include({
-        id: 12, 
+        id: 13, 
         name: 'Year', 
         type: variable.types.categorical,
         scopedDataSet: null
       }),
 
       expect(results.then(r => r[1])).to.eventually.include({
-        id: 13, 
+        id: 14, 
         name: 'Height', 
-        type: variable.types.quantitative,
+        type: variable.types.numerical,
         scopedDataSet: 1
       }),
 
@@ -443,7 +443,7 @@ describe('Update Methods', function(){
   it('should update multiple entities of different types in proper tables', function(){
     const entities = [
       variable.newCategorical(5, 'Vehicle Make - Updated'),
-      variable.newQuantitative(3, 'Population Count - Updated', {
+      variable.newNumerical(3, 'Population Count - Updated', {
         scopedDataSet: 2
       }),
       dataSet.new(4, 'Fuel Economy - Updated')
@@ -466,7 +466,7 @@ describe('Update Methods', function(){
         id: 3,
         name: 'Population Count - Updated',
         entityType: variable.entityType,
-        type: variable.types.quantitative,
+        type: variable.types.numerical,
         scopedDataSet: 2
       }),      
 
@@ -620,10 +620,10 @@ describe('Property tests', function(){
       }
     ];
 
-    const varWithFormat = variable.newQuantitative(null, 'Var. With Format', Object.assign({}, {
+    const varWithFormat = variable.newNumerical(null, 'Var. With Format', Object.assign({}, {
         format: format
       }, dateProps)),
-      varWithoutFormat = variable.newQuantitative(null, 'Var. Without Format', dateProps);
+      varWithoutFormat = variable.newNumerical(null, 'Var. Without Format', dateProps);
 
     it('should set and retrieve the valid format', function(){
       const results = entityStorage.create(catalog, [varWithFormat]);

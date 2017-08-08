@@ -170,7 +170,7 @@ describe('Entity Mapping and Validation', function(){
       const dbRecord = {
         id: 34,
         name: 'Var.',
-        type: variable.types.quantitative,
+        type: variable.types.numerical,
         format: {
           type: 'percent',
           options: {foo: 'bar'}
@@ -211,16 +211,16 @@ describe('Entity Mapping and Validation', function(){
       expect(variableRecord.type).to.equal(variable.types.categorical);
     });
 
-    it('should map quantitative variable records', function(){
+    it('should map numerical variable records', function(){
       const dbRecord = {
         id: 34,
         name: 'Var.',
-        type: variable.types.quantitative
+        type: variable.types.numerical
       };
 
       const variableRecord = mapper[variable.entityType].buildEntity(dbRecord);
 
-      expect(variableRecord.type).to.equal(variable.types.quantitative);
+      expect(variableRecord.type).to.equal(variable.types.numerical);
     });
 
   });

@@ -10,12 +10,14 @@ const { variable, fact, individual } = require('davis-model');
 
 module.exports = db => {
 
-  const validQuantitativeComparators = ['<', '<=', '=', '>=', '>'];
+  const validNumericalComparators = ['<', '<=', '=', '>=', '>'];
 
   const isCategoricalFilter = f => f.type === variable.types.categorical,
-    isQuantitativeFilter = f => f.type === variable.types.quantitative,
+    isNumericalFilter = f => f.type === variable.types.numerical,
+    isTextFilter = f => f.type === variable.types.text,
     isCategoricalFact = fact => fact.variable_type === variable.types.categorical,
-    isQuantitativeFact = fact => fact.variable_type === variable.types.quantitative;
+    isNumericalFact = fact => fact.variable_type === variable.types.numerical,
+    isTextFact = fact => fact.variable_type === variable.types.text;
 
   const categoricalFilterClause = f =>
     Either.Right(function filterClause(){
@@ -29,13 +31,20 @@ module.exports = db => {
       }
     });
 
-  const quantitativeFilterClause = f => {
-    return !R.contains(f.comparator, validQuantitativeComparators) ?
-      Either.Left(`Unsupported quantitative comparator: ${f.comparator}. Valid comparators include: ${validQuantitativeComparators.join(',')}`) :
+  const numericalFilterClause = f => {
+    return !R.contains(f.comparator, validNumericalComparators) ?
+      Either.Left(`Unsupported numerical comparator: ${f.comparator}. Valid comparators include: ${validNumericalComparators.join(',')}`) :
       Either.Right(function filterClause(){
         this.where('variable_id', '=', f.variable)
-          .andWhere('value', f.comparator, f.value);
+          .andWhere('numerical_value', f.comparator, f.value);
       });
+  };
+
+  const textFilterClause = f => {
+    return Either.Right(function filterClause(){
+      this.where('variable_id', '=', f.variable)
+        .andWhere('text_value', '=', f.value);
+    });
   };
 
   const dataSetFilterClause = R.pipe(
@@ -49,7 +58,8 @@ module.exports = db => {
 
   const filterClause = R.cond([
     [isCategoricalFilter, categoricalFilterClause],
-    [isQuantitativeFilter, quantitativeFilterClause]
+    [isNumericalFilter, numericalFilterClause],
+    [isTextFilter, textFilterClause]
   ]);
 
   const filterSubQuery = R.curry((catalog, f) => 
@@ -86,7 +96,8 @@ module.exports = db => {
       'v.id as variable_id',
       'v.type as variable_type',
       'f.attribute_id as attribute_id',
-      'value')
+      'numerical_value',
+      'text_value')
       .from('facts as f')
       .join('variables as v', 'f.variable_id', '=', 'v.id');
 
@@ -101,12 +112,16 @@ module.exports = db => {
   const createCategoricalFact = row => 
     fact.newCategorical(row.variable_id, row.attribute_id);
 
-  const createQuantitativeFact = row =>
-    fact.newQuantitative(row.variable_id, row.value);
+  const createNumericalFact = row =>
+    fact.newNumerical(row.variable_id, row.numerical_value);
+
+  const createTextFact = row =>
+    fact.newText(row.variable_id, row.text_value);
 
   const createFact = R.cond([
     [isCategoricalFact, createCategoricalFact],
-    [isQuantitativeFact, createQuantitativeFact],
+    [isNumericalFact, createNumericalFact],
+    [isTextFact, createTextFact],
     [R.T, factRecord => { throw `Invalid variable type ${factRecord.variable_type}`; }]]);
 
   const orderByDataSetId = compare(R.prop('data_set_id'), ascending),

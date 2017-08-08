@@ -96,10 +96,10 @@ describe('Data Query', function(){
     return expect(task2Promise(dataSetIds)).to.eventually.deep.equal([3]);
   });
 
-  it('should filter by quantitative set: <', function(){
+  it('should filter by numerical set: <', function(){
     const results = query(catalog, [{
       variable: 7, // Horsepower
-      type: variable.types.quantitative,
+      type: variable.types.numerical,
       value: 122,
       comparator: '<'
     }], 4);
@@ -107,88 +107,43 @@ describe('Data Query', function(){
     const resultsP = task2Promise(results);
 
     return when.all([
-      expect(resultsP.then(r => r[0].facts)).to.eventually.have.length(4),
-      expect(resultsP.then(r => r[0].facts[0])).to.eventually.contain({
-        variable: 5,
-        attribute: 6
-      }),
-      expect(resultsP.then(r => r[0].facts[1])).to.eventually.contain({
-        variable: 6,
-        attribute: 8
-      }),
-      expect(resultsP.then(r => r[0].facts[2])).to.eventually.contain({
-        variable: 7,
-        value: 120
-      }),
-      expect(resultsP.then(r => r[0].facts[3])).to.eventually.contain({
-        variable: 8,
-        value: 33
-      })
+      expect(resultsP.then(r => r[0].id)).to.eventually.equal(1),
+      expect(resultsP.then(r => r[0].dataSet)).to.eventually.equal(4)
     ]);
   });
 
-  it('should filter by quantitative set: >', function(){
+  it('should filter by numerical set: >', function(){
     const results = task2Promise(query(catalog, [{
       variable: 7, // Horsepower
-      type: variable.types.quantitative,
+      type: variable.types.numerical,
       value: 170,
       comparator: '>'
     }], 4));
 
     return when.all([
-      expect(results.then(r => r[0].facts)).to.eventually.have.length(4),
-      expect(results.then(r => r[0].facts[0])).to.eventually.contain({
-        variable: 5,
-        attribute: 7
-      }),
-      expect(results.then(r => r[0].facts[1])).to.eventually.contain({
-        variable: 6,
-        attribute: 11
-      }),
-      expect(results.then(r => r[0].facts[2])).to.eventually.contain({
-        variable: 7,
-        value: 180
-      }),
-      expect(results.then(r => r[0].facts[3])).to.eventually.contain({
-        variable: 8,
-        value: 31
-      })
+      expect(results.then(r => r[0].id)).to.eventually.equal(4),
+      expect(results.then(r => r[0].dataSet)).to.eventually.equal(4)
     ]);
   });
 
-  it('should filter by quantitative set: =', function(){
+  it('should filter by numerical set: =', function(){
     const results = task2Promise(query(catalog, [{
       variable: 7, // Horsepower
-      type: variable.types.quantitative,
+      type: variable.types.numerical,
       value: 130,
       comparator: '='
     }], 4));
 
     return when.all([
-      expect(results.then(r => r[0].facts)).to.eventually.have.length(4),
-      expect(results.then(r => r[0].facts[0])).to.eventually.contain({
-        variable: 5,
-        attribute: 6
-      }),
-      expect(results.then(r => r[0].facts[1])).to.eventually.contain({
-        variable: 6,
-        attribute: 9
-      }),
-      expect(results.then(r => r[0].facts[2])).to.eventually.contain({
-        variable: 7,
-        value: 130
-      }),
-      expect(results.then(r => r[0].facts[3])).to.eventually.contain({
-        variable: 8,
-        value: 37
-      })
+      expect(results.then(r => r[0].id)).to.eventually.equal(2),
+      expect(results.then(r => r[0].dataSet)).to.eventually.equal(4)
     ]);
   });
 
-  it('should filter by quantitative set: <=', function(){
+  it('should filter by numerical set: <=', function(){
     const results = task2Promise(query(catalog, [{
       variable: 7, // Horsepower
-      type: variable.types.quantitative,
+      type: variable.types.numerical,
       value: 130,
       comparator: '<='
     }], 4));
@@ -196,10 +151,10 @@ describe('Data Query', function(){
     return expect(results).to.eventually.have.length(3);
   });
 
-  it('should filter by quantitative set: >=', function(){
+  it('should filter by numerical set: >=', function(){
     const results = task2Promise(query(catalog, [{
       variable: 7, // Horsepower
-      type: variable.types.quantitative,
+      type: variable.types.numerical,
       value: 130,
       comparator: '>='
     }], 4));
@@ -210,12 +165,12 @@ describe('Data Query', function(){
   it('should error for bad comparator', function(){
     const results = task2Promise(query(catalog, [{
       variable: 7, // Horsepower
-      type: variable.types.quantitative,
+      type: variable.types.numerical,
       value: 130,
       comparator: '???'
     }], 4));
 
-    return expect(results).to.be.rejectedWith(/Unsupported quantitative comparator/);
+    return expect(results).to.be.rejectedWith(/Unsupported numerical comparator/);
   });
 
   it('should return data points', function(){
@@ -224,25 +179,11 @@ describe('Data Query', function(){
     return when.all([
       expect(results).to.eventually.have.length(2),
 
-      expect(results.then(r => r[0].facts)).to.eventually.have.length(4),
-      expect(results.then(r => r[0].facts[0].variable)).to.eventually.equal(5),
-      expect(results.then(r => r[0].facts[0].attribute)).to.eventually.equal(6),
-      expect(results.then(r => r[0].facts[1].variable)).to.eventually.equal(6),
-      expect(results.then(r => r[0].facts[1].attribute)).to.eventually.equal(8),
-      expect(results.then(r => r[0].facts[2].variable)).to.eventually.equal(7),
-      expect(results.then(r => r[0].facts[2].value)).to.eventually.equal(120),
-      expect(results.then(r => r[0].facts[3].variable)).to.eventually.equal(8),
-      expect(results.then(r => r[0].facts[3].value)).to.eventually.equal(33),
+      expect(results.then(r => r[0].id)).to.eventually.equal(1),
+      expect(results.then(r => r[0].dataSet)).to.eventually.equal(4),
 
-      expect(results.then(r => r[1].facts)).to.eventually.have.length(4),
-      expect(results.then(r => r[1].facts[0].variable)).to.eventually.equal(5),
-      expect(results.then(r => r[1].facts[0].attribute)).to.eventually.equal(6),
-      expect(results.then(r => r[1].facts[1].variable)).to.eventually.equal(6),
-      expect(results.then(r => r[1].facts[1].attribute)).to.eventually.equal(9),
-      expect(results.then(r => r[1].facts[2].variable)).to.eventually.equal(7),
-      expect(results.then(r => r[1].facts[2].value)).to.eventually.equal(130),
-      expect(results.then(r => r[1].facts[3].variable)).to.eventually.equal(8),
-      expect(results.then(r => r[1].facts[3].value)).to.eventually.equal(37)
+      expect(results.then(r => r[1].id)).to.eventually.equal(2),
+      expect(results.then(r => r[1].dataSet)).to.eventually.equal(4)
     ]);
   });
 
@@ -251,15 +192,8 @@ describe('Data Query', function(){
 
     return when.all([
       expect(results).to.eventually.have.length(1),
-      expect(results.then(r => r[0].facts)).to.eventually.have.length(4),
-      expect(results.then(r => r[0].facts[0].variable)).to.eventually.equal(5),
-      expect(results.then(r => r[0].facts[0].attribute)).to.eventually.equal(6),
-      expect(results.then(r => r[0].facts[1].variable)).to.eventually.equal(6),
-      expect(results.then(r => r[0].facts[1].attribute)).to.eventually.equal(9),
-      expect(results.then(r => r[0].facts[2].variable)).to.eventually.equal(7),
-      expect(results.then(r => r[0].facts[2].value)).to.eventually.equal(130),
-      expect(results.then(r => r[0].facts[3].variable)).to.eventually.equal(8),
-      expect(results.then(r => r[0].facts[3].value)).to.eventually.equal(37)
+      expect(results.then(r => r[0].id)).to.eventually.equal(2),
+      expect(results.then(r => r[0].dataSet)).to.eventually.equal(4)
     ]);
   });
 });

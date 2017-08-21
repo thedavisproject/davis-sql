@@ -1,8 +1,8 @@
-module.exports = function(dbConfig){
+module.exports = function(storageConfig){
 
-  const db = require('./db/knex')(dbConfig);
+  const db = require('./db/knex')(storageConfig.knex);
 
   return Object.assign({}, {
-    transact: require('./src/transact')(db)
+    transact: require('./src/transact')(db, storageConfig['transaction-timeout'])
   }, require('./src/api')(db));
 };

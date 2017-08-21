@@ -59,7 +59,7 @@ function createTransaction(
   // Knex transaction object. This allows for composing multiple small transactions
   // into a large transaction. Each inner transaction will just roll up to the 
   // outer transaction.
-  const transactPassThrough = (transactionScopedFn, timeout = 10000) => {
+  const transactPassThrough = (transactionScopedFn) => {
     return new Task((reject, resolve) => {
       createTransaction(
         transactionScopedFn,
@@ -91,14 +91,16 @@ function createTransaction(
 
 }
 
-module.exports = db => (transactionScopedFn, timeout = 10000) => {
+module.exports = (db, timeout = 120000) => (transactionScopedFn, timeoutOverride) => {
+
+  const timeoutValue = timeoutOverride || timeout;
 
   return new Task((reject, resolve) => {
     
     db.transaction(trx => 
       createTransaction(
         transactionScopedFn, 
-        timeout,
+        timeoutValue,
         reject,
         resolve,
         trx.rollback,

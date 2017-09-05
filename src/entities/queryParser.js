@@ -99,6 +99,10 @@ const buildKnexQuery = R.curry((expression, knexObj) => {
       this.whereIn(expression[1], expression[2]);
     });
   }
+  else if(op.symbol === 'like') {
+    // case insensitive like
+    knexObj.where(expression[1], 'ILIKE', `%${expression[2]}%`);
+  }
   else {
     knexObj.where(expression[1], expression[0], expression[2]);
   }

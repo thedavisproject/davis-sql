@@ -16,7 +16,7 @@ const validateEntityName = (entity) =>{
 // Validation default is to return an an Either.Right
 // Returns an Either
 const configureRecord = ({props, validate = a => Either.Right(a)}) => entity => {
-  
+
   // Validation. Each step should throw an exception if an error is encountered
   return thread(
     entity,
@@ -34,11 +34,11 @@ const addDates = R.curry((record, e) => {
   return thread(
     e,
     entity.setCreated(record.created),
-    entity.setModified(record.modified)); 
+    entity.setModified(record.modified));
 });
 
 module.exports = R.indexBy(R.prop('entityType'), [
-  
+
   // *****************
   // Folder
   // *****************
@@ -47,7 +47,7 @@ module.exports = R.indexBy(R.prop('entityType'), [
 
     table: 'folders',
 
-    buildEntity: record => { 
+    buildEntity: record => {
       const obj = folder.new(record.id, record.name, {
         parent: record.parent_id
       });
@@ -95,8 +95,8 @@ module.exports = R.indexBy(R.prop('entityType'), [
         data_modified: dataSet.dataModified
       })
     }),
-    
-    propertyMappings: { 
+
+    propertyMappings: {
       'id': 'id',
       'name': 'name',
       'schema': 'schema',
@@ -152,7 +152,7 @@ module.exports = R.indexBy(R.prop('entityType'), [
       })
     }),
 
-    propertyMappings: { 
+    propertyMappings: {
       'id': 'id',
       'name': 'name',
       'type': 'type',
@@ -197,7 +197,7 @@ module.exports = R.indexBy(R.prop('entityType'), [
       }
     }),
 
-    propertyMappings: { 
+    propertyMappings: {
       'id': 'id',
       'name': 'name',
       'key': 'key',
@@ -218,6 +218,7 @@ module.exports = R.indexBy(R.prop('entityType'), [
     buildEntity: record => {
       const obj = user.new(record.id, record.name, record.email, {
         admin: record.admin,
+        gui: record.gui,
         password: record.password // The hashed password
       });
       return addDates(record, obj);
@@ -227,11 +228,12 @@ module.exports = R.indexBy(R.prop('entityType'), [
       props: user => ({
         email: user.email,
         password: user.password, // The hashed password
-        admin: user.admin
+        admin: user.admin,
+        gui: user.gui
       }),
       validate: user => {
         if(!user.email){
-          return Either.Left('Users may not be stored without a valid email'); 
+          return Either.Left('Users may not be stored without a valid email');
         }
 
         if(!user.password){
@@ -242,12 +244,13 @@ module.exports = R.indexBy(R.prop('entityType'), [
       }
     }),
 
-    propertyMappings: { 
+    propertyMappings: {
       'id': 'id',
       'name': 'name',
       'email': 'email',
       'password': 'password',
-      'admin': 'admin'
+      'admin': 'admin',
+      'gui': 'gui'
     }
   },
 
@@ -295,7 +298,7 @@ module.exports = R.indexBy(R.prop('entityType'), [
       }
     }),
 
-    propertyMappings: { 
+    propertyMappings: {
       'id': 'id',
       'name': 'name',
       'user': 'user_id',

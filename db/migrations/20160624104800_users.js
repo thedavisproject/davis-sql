@@ -5,9 +5,9 @@ exports.up = function(knex) {
   return util.createEntityTable('public', 'users', function(t){
     t.string('email').notNullable().index();
     t.string('password').notNullable();
-    t.boolean('admin').notNullable();
+    t.boolean('admin').defaultTo(false).notNullable();
   }).then(function(){
-    
+
     var u = user.new(null, 'admin', 'admin');
     u = user.setPassword('password', u);
 

@@ -51,9 +51,9 @@ describe('Entity Mapping and Validation', function(){
       expect(folderRecord.name).to.equal('Foo Folders');
       expect(folderRecord.parent).to.equal(5);
       expect(folderRecord.created).to.be.a('Date');
-      expect(folderRecord.created.toString()).to.equal('Fri Jun 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(folderRecord.created.toString()).to.match(/Fri Jun 24 2016 12:30:00 GMT-0400/);
       expect(folderRecord.modified).to.be.a('Date');
-      expect(folderRecord.modified.toString()).to.equal('Sun Jul 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(folderRecord.modified.toString()).to.match(/Sun Jul 24 2016 12:30:00 GMT-0400/);
     });
 
   });
@@ -99,11 +99,11 @@ describe('Entity Mapping and Validation', function(){
       expect(dataSetRecord.folder).to.equal(5);
       expect(dataSetRecord.schema).to.deep.equal([1,2,3]);
       expect(dataSetRecord.created).to.be.a('Date');
-      expect(dataSetRecord.created.toString()).to.equal('Fri Jun 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(dataSetRecord.created.toString()).to.match(/Fri Jun 24 2016 12:30:00 GMT-0400/);
       expect(dataSetRecord.modified).to.be.a('Date');
-      expect(dataSetRecord.modified.toString()).to.equal('Sun Jul 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(dataSetRecord.modified.toString()).to.match(/Sun Jul 24 2016 12:30:00 GMT-0400/);
       expect(dataSetRecord.dataModified).to.be.a('Date');
-      expect(dataSetRecord.dataModified.toString()).to.equal('Wed Aug 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(dataSetRecord.dataModified.toString()).to.match(/Wed Aug 24 2016 12:30:00 GMT-0400/);
     });
 
   });
@@ -117,7 +117,7 @@ describe('Entity Mapping and Validation', function(){
     });
 
     it('should map the variable to record', function(){
-      const v = variable.newCategorical(null, 'Cat. Var.', Object.assign({ 
+      const v = variable.newCategorical(null, 'Cat. Var.', Object.assign({
         scopedDataSet: 10,
         key: 'k',
         format: {
@@ -161,9 +161,9 @@ describe('Entity Mapping and Validation', function(){
       expect(variableRecord.key).to.equal('k');
       expect(variableRecord.scopedDataSet).to.equal(12);
       expect(variableRecord.created).to.be.a('Date');
-      expect(variableRecord.created.toString()).to.equal('Fri Jun 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(variableRecord.created.toString()).to.match(/Fri Jun 24 2016 12:30:00 GMT-0400/);
       expect(variableRecord.modified).to.be.a('Date');
-      expect(variableRecord.modified.toString()).to.equal('Sun Jul 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(variableRecord.modified.toString()).to.match(/Sun Jul 24 2016 12:30:00 GMT-0400/);
     });
 
     it('should map the format settings', function(){
@@ -267,9 +267,9 @@ describe('Entity Mapping and Validation', function(){
       expect(dataSetRecord.variable).to.equal(5);
       expect(dataSetRecord.parent).to.equal(6);
       expect(dataSetRecord.created).to.be.a('Date');
-      expect(dataSetRecord.created.toString()).to.equal('Fri Jun 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(dataSetRecord.created.toString()).to.match(/Fri Jun 24 2016 12:30:00 GMT-0400/);
       expect(dataSetRecord.modified).to.be.a('Date');
-      expect(dataSetRecord.modified.toString()).to.equal('Sun Jul 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(dataSetRecord.modified.toString()).to.match(/Sun Jul 24 2016 12:30:00 GMT-0400/);
     });
 
     it('should map key to attribute entity only if exists', function(){
@@ -327,6 +327,7 @@ describe('Entity Mapping and Validation', function(){
         name: 'Mr. Jones',
         email: 'jones@example.com',
         admin: false,
+        gui: false,
         password: goodUser.password,
         modified: testModifiedDate,
         created: testCreatedDate
@@ -339,6 +340,7 @@ describe('Entity Mapping and Validation', function(){
         name: 'Foo',
         email: 'foo@bar.com',
         admin: true,
+        gui: true,
         password: 'hashed...password',
         created: '2016-06-24 12:30:00-04',
         modified: '2016-07-24 12:30:00-04'
@@ -350,11 +352,12 @@ describe('Entity Mapping and Validation', function(){
       expect(userRecord.name).to.equal('Foo');
       expect(userRecord.email).to.equal('foo@bar.com');
       expect(userRecord.admin).to.be.true;
+      expect(userRecord.gui).to.be.true;
       expect(userRecord.password).to.equal('hashed...password');
       expect(userRecord.created).to.be.a('Date');
-      expect(userRecord.created.toString()).to.equal('Fri Jun 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(userRecord.created.toString()).to.match(/Fri Jun 24 2016 12:30:00 GMT-0400/);
       expect(userRecord.modified).to.be.a('Date');
-      expect(userRecord.modified.toString()).to.equal('Sun Jul 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(userRecord.modified.toString()).to.match(/Sun Jul 24 2016 12:30:00 GMT-0400/);
     });
   });
 
@@ -403,9 +406,9 @@ describe('Entity Mapping and Validation', function(){
       expect(actionRecord.subjectId).to.equal(2);
       expect(actionRecord.action).to.equal('update');
       expect(actionRecord.created).to.be.a('Date');
-      expect(actionRecord.created.toString()).to.equal('Fri Jun 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(actionRecord.created.toString()).to.match(/Fri Jun 24 2016 12:30:00 GMT-0400/);
       expect(actionRecord.modified).to.be.a('Date');
-      expect(actionRecord.modified.toString()).to.equal('Sun Jul 24 2016 12:30:00 GMT-0400 (Eastern Daylight Time)');
+      expect(actionRecord.modified.toString()).to.match(/Sun Jul 24 2016 12:30:00 GMT-0400/);
     });
   });
 });

@@ -48,7 +48,7 @@ describe('Data Query', function(){
     const results = query(catalog, maFilter);
     const dataSetIds = results.map(
       R.pipe(
-        R.map(R.prop('dataSet')), 
+        R.map(R.prop('dataSet')),
         R.uniq));
 
     return expect(task2Promise(dataSetIds)).to.eventually.deep.equal([2,3,5]);
@@ -58,7 +58,7 @@ describe('Data Query', function(){
     const results = query(catalog, hondaFilter);
     const dataSetIds = results.map(
       R.pipe(
-        R.map(R.prop('dataSet')), 
+        R.map(R.prop('dataSet')),
         R.uniq));
 
     return expect(task2Promise(dataSetIds)).to.eventually.deep.equal([4]);
@@ -82,18 +82,23 @@ describe('Data Query', function(){
       { variable: 5, attributes: [7], type: variable.types.categorical },
       { variable: 6, attributes: [], type: variable.types.categorical }
     ]);
-    
+
     return expect(task2Promise(results).then(r => r[0].facts[3].value)).to.eventually.be.Null;
   });
 
   it('should filter by data set', function(){
     const results = query(catalog, maFilter, 3);
-    
+
     const dataSetIds = results.map(R.pipe(
       R.map(R.prop('dataSet')),
       R.uniq));
 
     return expect(task2Promise(dataSetIds)).to.eventually.deep.equal([3]);
+  });
+
+  it('should limit result set', function(){
+    const results = query(catalog, [], 4, 3);
+    return expect(task2Promise(results)).to.eventually.have.length(3);
   });
 
   it('should filter by numerical set: <', function(){

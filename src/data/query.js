@@ -62,7 +62,7 @@ module.exports = db => {
     [isTextFilter, textFilterClause]
   ]);
 
-  const filterSubQuery = R.curry((catalog, f) => 
+  const filterSubQuery = R.curry((catalog, f) =>
     thread(
       f,
       filterClause,
@@ -87,8 +87,8 @@ module.exports = db => {
       return query;
     });
   });
-   
-  const queryFacts = (catalog, filters, dataSetIds) => {
+
+  const queryFacts = (catalog, filters, dataSetIds, limit) => {
 
     var query = db.withSchema(catalog).select(
       'f.data_set_id',
@@ -101,6 +101,10 @@ module.exports = db => {
       .from('facts as f')
       .join('variables as v', 'f.variable_id', '=', 'v.id');
 
+    if(limit){
+      query.where('f.individual_id', '<=', limit);
+    }
+
     return thread(
       query,
       addFilters(catalog, filters, dataSetIds),
@@ -109,7 +113,7 @@ module.exports = db => {
       R.chain(R.identity));
   };
 
-  const createCategoricalFact = row => 
+  const createCategoricalFact = row =>
     fact.newCategorical(row.variable_id, row.attribute_id);
 
   const createNumericalFact = row =>
@@ -128,7 +132,7 @@ module.exports = db => {
     orderByIndividualId = compare(R.prop('individual_id'), ascending),
     orderByVariableId = compare(R.prop('variable_id'), ascending),
     factOrder = composeComparators([
-      orderByDataSetId, 
+      orderByDataSetId,
       orderByIndividualId,
       orderByVariableId]);
 
@@ -143,7 +147,7 @@ module.exports = db => {
     R.map(R.values),
     R.values,
     R.flatten);
-  
+
   // (catalog, filters, dataSetIds) => Task [Individual]
   const query = R.pipe(
       queryFacts,

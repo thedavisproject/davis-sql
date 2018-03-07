@@ -8,7 +8,7 @@ const { thread, either2Task } = shared.fp;
 const Async = require('control.async')(Task);
 const { variable, fact, individual } = require('davis-model');
 
-module.exports = db => {
+module.exports = (db, storageConfigIgnored) => {
 
   const validNumericalComparators = ['<', '<=', '=', '>=', '>'];
 

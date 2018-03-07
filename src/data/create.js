@@ -3,7 +3,7 @@ const Task = require('data.task');
 const Async = require('control.async')(Task);
 const R = require('ramda');
 
-const individualToFactRecords = individual => 
+const individualToFactRecords = individual =>
   individual.facts.map(function(f){
     if(f.type === variable.types.categorical){
       return {
@@ -31,7 +31,7 @@ const individualToFactRecords = individual =>
     }
   });
 
-module.exports = db => (catalog, individuals) => {
+module.exports = (db, storageConfigIgnored) => (catalog, individuals) => {
   const facts = R.chain(individualToFactRecords, individuals);
 
   return Async.fromPromise(db('facts').withSchema(catalog).insert(facts))

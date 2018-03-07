@@ -13,9 +13,9 @@ const {variable} = require('davis-model');
 const R = require('ramda');
 
 const testConfig = require('../config.js'),
-  knex = require('../../db/knex')(testConfig.db),
+  knex = require('../../db/knex')(testConfig.knex),
   catalog = testConfig.catalogs.source,
-  query = require('../../src/data/query')(knex);
+  query = require('../../src/data/query')(knex, testConfig);
 
 describe('Data Query', function(){
 

@@ -10,9 +10,9 @@ const when = require('when');
 const task2Promise = Async.toPromise(when.promise);
 
 const testConfig = require('../config.js'),
-  knex = require('../../db/knex')(testConfig.db),
+  knex = require('../../db/knex')(testConfig.knex),
   catalog = testConfig.catalogs.source,
-  deleteFn = require('../../src/data/delete');
+  del = require('../../src/data/delete')(knex, testConfig);
 
 function readFacts(dataSet, variable, attribute){
   const query = knex('facts').withSchema(catalog);
@@ -48,41 +48,25 @@ describe('Data Delete', function(){
   });
 
   it('should clear facts table when passed a data set id', function(){
-    
-    const del = deleteFn(knex, 1000); // batch size of 1000
     const deleteSuccess = task2Promise(del(catalog, {dataSet: 2}));
-
     const results = deleteSuccess.then(() => readFacts(2));
-  
     return expect(results).to.eventually.have.length(0);
-  });     
+  });
 
   it('should clear facts table when passed a variable id', function(){
-    
-    const del = deleteFn(knex, 1000); // batch size of 1000
     const deleteSuccess = task2Promise(del(catalog, {variable: 2}));
-
     const results = deleteSuccess.then(() => readFacts(null, 2));
-  
     return expect(results).to.eventually.have.length(0);
-  });     
+  });
 
   it('should clear facts table when passed an attribute id', function(){
-    
-    const del = deleteFn(knex, 1000); // batch size of 1000
     const deleteSuccess = task2Promise(del(catalog, {attribute: 2}));
-
     const results = deleteSuccess.then(() => readFacts(null, null, 2));
-  
     return expect(results).to.eventually.have.length(0);
-  });     
+  });
 
   it('safeguard against deleting all data when no params are passed in', function(){
-    
-    const del = deleteFn(knex, 1000); // batch size of 1000
     const results = task2Promise(del(catalog, {}));
-
     return expect(results).to.be.rejectedWith(/No parameters provided/);
-  });     
-
+  });
 });

@@ -4,8 +4,8 @@ const shared = require('davis-shared');
 const {thread} = shared.fp;
 const {toArray} = shared.array;
 
-module.exports = db => (catalog, {dataSet, variable, attribute}) => {
- 
+module.exports = (db, storageConfigIgnored) => (catalog, {dataSet, variable, attribute}) => {
+
   const dataSetArr = toArray(dataSet);
   const variableArr = toArray(variable);
   const attributeArr = toArray(attribute);
@@ -16,11 +16,11 @@ module.exports = db => (catalog, {dataSet, variable, attribute}) => {
     // Safeguard against accidentally deleting all data
     return Task.rejected('No parameters provided to data delete.');
   }
-  
+
   return  thread(db.transaction(function(trx){
     const query = db('facts').withSchema(catalog)
       .transacting(trx);
-    
+
     if(dataSetArr > 0){
       query.where('data_set_id', 'in', dataSetArr);
     }

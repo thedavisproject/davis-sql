@@ -13,10 +13,10 @@ const {variable} = require('davis-model');
 const R = require('ramda');
 
 const testConfig = require('./config.js'),
-  knex = require('../db/knex')(testConfig.db),
+  knex = require('../db/knex')(testConfig.knex),
   catalog = testConfig.catalogs.source,
-  transact = require('../src/transact')(knex),
-  entities = require('../src/entities/storage')(knex);
+  transact = require('../src/transact')(knex, testConfig),
+  entities = require('../src/entities/storage')(knex, testConfig);
 
 const testCreatedDate = new Date(2016,5,24,12,30,0,0),
   testModifiedDate = new Date(2016,5,25,10,25,4,20),
@@ -60,7 +60,7 @@ describe('Transact', function(){
       newVariable2 = variable.newCategorical(null, 'My New Variable 2', dateProps);
 
     const result = task2Promise(transact(function(storage, commit, rollback){
-      
+
       const insertTask = R.sequence(Task.of, [
         storage.entities.create(catalog, [newVariable1]),
         storage.entities.create(catalog, [newVariable2])
@@ -93,7 +93,7 @@ describe('Transact', function(){
       newVariable2 = variable.newCategorical(null, 'My New Variable 2', dateProps);
 
     const result = task2Promise(transact(function(storage, commit, rollback){
-      
+
       const insertTask = R.sequence(Task.of, [
         storage.entities.create(catalog, [newVariable1]),
         storage.entities.create(catalog, [newVariable2])
@@ -121,7 +121,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage, commit, rollback){
-      
+
       const innerTrx = storage.transact(function(storageInner, commitInner){
         const innerInsertTask = storageInner.entities.create(catalog, [newVariable1]);
 
@@ -155,7 +155,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage, commit, rollback){
-      
+
       const innerTrx = storage.transact(function(storageInner, commitInner, rollbackInner){
         const innerInsertTask = storageInner.entities.create(catalog, [newVariable1]);
 
@@ -182,7 +182,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage, commit, rollback){
-      
+
       const innerTrx = storage.transact(function(storageInner, commitInner, rollbackInnerIgnored){
         const innerInsertTask = storageInner.entities.create(catalog, [newVariable1]);
 
@@ -212,7 +212,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage){
-      
+
       return storage.transact(function(storageInner){
         return storageInner.entities.create(catalog, [newVariable1]);
       });
@@ -236,10 +236,10 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage){
-      
+
       return storage.transact(function(storageInner){
         return storageInner.entities.create(catalog, [newVariable1])
-          .chain(() => Task.rejected()); 
+          .chain(() => Task.rejected());
       });
 
     }));
@@ -258,7 +258,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage){
-      
+
       return storage.transact(function(storageInner){
         return storageInner.entities.create(catalog, [newVariable1]);
       }).chain(() => Task.rejected());
@@ -279,7 +279,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage){
-      
+
       return storage.entities.create(catalog, [newVariable1])
         .chain(() => storage.transact(function(){
           return Task.rejected();
@@ -301,7 +301,7 @@ describe('Transact', function(){
     const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
     const result = task2Promise(transact(function(storage, commit, rollback){
-      
+
       const insertTask = storage.entities.create(catalog, [newVariable1]);
 
       // Wait to kick this off until after the timeout
@@ -326,7 +326,7 @@ describe('Transact', function(){
   });
 
   it('should fail when rollback is manually called', function(){
-    
+
     const results = task2Promise(transact(function(storage, commit, rollback){
       rollback('Failure');
     }));
@@ -335,21 +335,21 @@ describe('Transact', function(){
   });
 
   it('should resolve when commit is manually called', function(){
-    
+
     const results = task2Promise(transact(function(storage, commit, rollbackIgnored){
       commit();
     }));
 
     return expect(results).to.eventually.be.fulfilled;
   });
-  
-  describe('should recognize Task returned', function(){ 
+
+  describe('should recognize Task returned', function(){
 
     it('and bubble up task error', function(){
       const result = task2Promise(transact(() => Task.rejected('error')));
       return expect(result).to.eventually.be.rejectedWith('error');
     });
-    
+
     it('and bubble up task success', function(){
       const result = task2Promise(transact(() => Task.of('success')));
       return expect(result).to.eventually.be.fulfilled;
@@ -360,7 +360,7 @@ describe('Transact', function(){
       const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
       // Chain an insert with an error task
-      const result = task2Promise(transact((storage) => 
+      const result = task2Promise(transact((storage) =>
         storage.entities.create(catalog, [newVariable1])
           .chain(() => Task.rejected('Some Error'))));
 
@@ -372,13 +372,13 @@ describe('Transact', function(){
         expect(checkNoInsertHappened).to.eventually.have.length(0)
       ]);
     });
-  
+
     it('and commit the transaction on the task success branch', function(){
 
       const newVariable1 = variable.newCategorical(null, 'My New Variable 1', dateProps);
 
       // Chain an insert with an error task
-      const result = task2Promise(transact((storage) => 
+      const result = task2Promise(transact((storage) =>
         storage.entities.create(catalog, [newVariable1])));
 
       const checkInsertHappened = result.then(() => task2Promise(

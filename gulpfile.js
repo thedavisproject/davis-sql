@@ -9,7 +9,7 @@ const testFiles = config.testFiles(drillPath);
 
 const loadKnex = () => {
   const testConfig = require('./test/config.js');
-  const knex = require('./db/knex')(testConfig.db);
+  const knex = require('./db/knex')(testConfig.knex);
   return {testConfig, knex};
 };
 

@@ -3,7 +3,7 @@ const Task = require('data.task');
 const baseApi = require('./api');
 
 // transactionScopedFn takes 3 args: storageApi, commit, rollback
-//   commit and rollback are optional. If they are not supplied, the 
+//   commit and rollback are optional. If they are not supplied, the
 //   fn is expected to return a Task, which will commit on success
 //   or rollback on failure.
 //   If a task is returned AND commit/rollback are used, the following events
@@ -19,7 +19,8 @@ function createTransaction(
   resolve,
   rollback,
   commit,
-  dbTrx) {
+  dbTrx,
+  storageConfig) {
 
   let transactionFinished = false;
 
@@ -53,11 +54,11 @@ function createTransaction(
     reject(error || 'An unspecified error occurred');
   };
 
-  const transactBaseApi = baseApi(dbTrx);
-  
-  // Create a new transaction scope that just passes through the original 
+  const transactBaseApi = baseApi(dbTrx, storageConfig);
+
+  // Create a new transaction scope that just passes through the original
   // Knex transaction object. This allows for composing multiple small transactions
-  // into a large transaction. Each inner transaction will just roll up to the 
+  // into a large transaction. Each inner transaction will just roll up to the
   // outer transaction.
   const transactPassThrough = (transactionScopedFn) => {
     return new Task((reject, resolve) => {
@@ -86,26 +87,29 @@ function createTransaction(
 
   // If the fn returns a Task, fork it and pass through results to the outer Task
   if(!R.isNil(result) && result.constructor.name === 'Task'){
-    result.fork(fail, success);          
+    result.fork(fail, success);
   }
-
 }
 
-module.exports = (db, timeout = 120000) => (transactionScopedFn, timeoutOverride) => {
+module.exports = (db, storageConfig) => (transactionScopedFn, timeoutOverride) => {
 
-  const timeoutValue = timeoutOverride || timeout;
+  const timeoutValue =
+      timeoutOverride ||
+      storageConfig['transaction-timeout'] ||
+      120000;
 
   return new Task((reject, resolve) => {
-    
-    db.transaction(trx => 
+
+    db.transaction(trx =>
       createTransaction(
-        transactionScopedFn, 
+        transactionScopedFn,
         timeoutValue,
         reject,
         resolve,
         trx.rollback,
         trx.commit,
-        trx))
+        trx,
+        storageConfig))
     // Swallow errors at this level, because Bluebird throws up false
     // positives when manually rolling the transaction back
     .catch(() => {});

@@ -14,11 +14,11 @@ const {thread} = require('davis-shared').fp;
 const R = require('ramda');
 
 const testConfig = require('../config.js'),
-  knex = require('../../db/knex')(testConfig.db),
+  knex = require('../../db/knex')(testConfig.knex),
   sourceCatalog = testConfig.catalogs.source,
   targetCatalog = testConfig.catalogs.target,
-  publish = require('../../src/publish/publish')(knex),
-  entityStorage = require('../../src/entities/storage')(knex);
+  publish = require('../../src/publish/publish')(knex, testConfig),
+  entityStorage = require('../../src/entities/storage')(knex, testConfig);
 
 function readFacts(schema, dataSheet){
   return thread(
@@ -43,11 +43,11 @@ describe('Sql Publish', function(){
 
   it('should publish new dataset', function(){
     const publishResult = publish.publishEntities(
-      sourceCatalog, 
-      targetCatalog, 
+      sourceCatalog,
+      targetCatalog,
       [dataSet.entityType]);
     const results = task2Promise(
-      publishResult.chain(() => 
+      publishResult.chain(() =>
         entityStorage.query(targetCatalog, dataSet.entityType)));
 
     return when.all([
@@ -60,14 +60,14 @@ describe('Sql Publish', function(){
 
   it('should publish full dataset', function(){
     const publishResult = publish.publishEntities(
-      sourceCatalog, 
-      targetCatalog, 
+      sourceCatalog,
+      targetCatalog,
       [dataSet.entityType]);
 
     const results = task2Promise(
-      publishResult.chain(() => 
+      publishResult.chain(() =>
         R.sequence(
-          Task.of, 
+          Task.of,
           [
             entityStorage.query(sourceCatalog, dataSet.entityType),
             entityStorage.query(targetCatalog, dataSet.entityType)
@@ -79,11 +79,11 @@ describe('Sql Publish', function(){
 
   it('should publish data', function(){
     const publishResult = publish.publishFacts(
-      sourceCatalog, 
-      targetCatalog, 
+      sourceCatalog,
+      targetCatalog,
       [5]);
 
-    const results = task2Promise(publishResult.chain(() => 
+    const results = task2Promise(publishResult.chain(() =>
       R.sequence(
         Task.of,
         [

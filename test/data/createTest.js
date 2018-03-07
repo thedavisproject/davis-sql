@@ -12,9 +12,9 @@ const task2Promise = Async.toPromise(when.promise);
 const {individual, fact} = require('davis-model');
 
 const testConfig = require('../config.js');
-const knex = require('../../db/knex')(testConfig.db);
+const knex = require('../../db/knex')(testConfig.knex);
 const catalog = testConfig.catalogs.source;
-const create = require('../../src/data/create')(knex);
+const create = require('../../src/data/create')(knex, testConfig);
 
 const R = require('ramda');
 

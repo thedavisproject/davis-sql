@@ -10,7 +10,7 @@ const queryParser = require('./queryParser');
 const querySort = model.query.sort;
 const {validateEmptyIds, validateNoEmptyIds} = require('../util');
 
-module.exports = db => {
+module.exports = (db, storageConfigIgnored) => {
 
   const validateEntityType = (entityType) => {
     if(!modelMapping[entityType]){
@@ -26,7 +26,7 @@ module.exports = db => {
       .map(eType => modelMapping[eType]);
 
     // Takes config (either) and returns a Task Wrapped in an Either
-    const buildQuery = R.lift(config => 
+    const buildQuery = R.lift(config =>
       thread(
         db(config.table),
         query,
@@ -50,12 +50,12 @@ module.exports = db => {
       .chain(config => thread(
         validateEmptyIds(entities),
         R.chain(
-          // Build record for each entity, convert [Either(record)] into 
+          // Build record for each entity, convert [Either(record)] into
           // Either([record])
           R.traverse(Either.of, config.buildRecord))));
 
     // Takes config, recs (eithers) and returns a Task Wrapped in an Either
-    const buildQuery = R.lift((config, recs) => 
+    const buildQuery = R.lift((config, recs) =>
       thread(
         db(config.table),
         t => t.withSchema(catalog).returning('id').insert(recs),
@@ -105,7 +105,7 @@ module.exports = db => {
       .map(eType => modelMapping[eType]);
 
     // Takes config (either) and returns a Task Wrapped in an Either
-    const buildQuery = R.lift(config => 
+    const buildQuery = R.lift(config =>
       thread(
         db(config.table),
         t => t.withSchema(catalog).whereIn('id', idArray).del(),
@@ -141,7 +141,7 @@ module.exports = db => {
 
         if(!query || query.length === 0){
           return queryEntities(
-            validatedType, 
+            validatedType,
             t => addQueryOptions(t.withSchema(catalog).select()));
         }
 
@@ -156,8 +156,8 @@ module.exports = db => {
               addQueryOptions(t.withSchema(catalog).select())))));
       }));
   };
-  
-  const queryById = R.curry((catalog, entityType, ids) => 
+
+  const queryById = R.curry((catalog, entityType, ids) =>
     query(catalog, entityType, model.query.build.in('id', ids)));
 
   const create = (catalog, entities) => thread(

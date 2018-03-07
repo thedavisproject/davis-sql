@@ -2,7 +2,7 @@
 //  - entity type is mapped to table(s) and they are truncated in the target and then recopied
 // Publish data for a list of data sets
 //  - This is more performance intensive
-//  - core can figure out what datasets to publish since last full publish 
+//  - core can figure out what datasets to publish since last full publish
 //  - This code will delete all dps in target for data set and recopy
 const modelMapping = require('../entities/mapping');
 const Task = require('data.task');
@@ -13,7 +13,7 @@ const shared = require('davis-shared');
 const {toArray} = shared.array;
 const {thread} = shared.fp;
 
-module.exports = db => {
+module.exports = (db, storageConfigIgnored) => {
 
   const publishEntities = (sourceSchema, targetSchema, types) => {
 
@@ -23,7 +23,7 @@ module.exports = db => {
 
     return thread(
       db.raw(`truncate ${fullyQualifiedTableNames(targetSchema).join(',')} RESTART IDENTITY`)
-        .then(() => when.all(R.reverse(tableNames).map(t => 
+        .then(() => when.all(R.reverse(tableNames).map(t =>
           db.raw(
           `insert into ${targetSchema}.${t}
            (select * from ${sourceSchema}.${t})`)))),

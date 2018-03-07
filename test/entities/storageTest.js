@@ -15,9 +15,9 @@ const {entity, attribute, variable, dataSet, folder, user} = model;
 const querySort = model.query.sort;
 
 const testConfig = require('../config.js'),
-  knex = require('../../db/knex')(testConfig.db),
+  knex = require('../../db/knex')(testConfig.knex),
   catalog = testConfig.catalogs.source,
-  entityStorage = require('../../src/entities/storage')(knex);
+  entityStorage = require('../../src/entities/storage')(knex, testConfig);
 
 const testCreatedDate = new Date(2016,5,24,12,30,0,0),
   testModifiedDate = new Date(2016,5,25,10,25,4,20),
@@ -42,7 +42,7 @@ describe('Read Methods', function(){
   it('should get all entities by type', function() {
 
     const folders = task2Promise(entityStorage.query(catalog, folder.entityType));
-    
+
     return when.all([
       expect(folders).to.eventually.have.length(3),
       expect(when.map(folders, o => o.name)).to.eventually.deep.equal(['Demographics', 'Age', 'Cars'])
@@ -133,7 +133,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the < operator properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['<', 'id', 2]));
     return when.all([
       expect(dataSets).to.eventually.have.length(1),
@@ -143,7 +143,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the <= operator properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['<=', 'id', 2]));
     return when.all([
       expect(dataSets).to.eventually.have.length(2),
@@ -153,7 +153,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the >= operator properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['>=', 'id', 5]));
     return when.all([
       expect(dataSets).to.eventually.have.length(2),
@@ -163,7 +163,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the != operator properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['!=', 'id', 6]));
     return when.all([
       expect(dataSets).to.eventually.have.length(5),
@@ -173,7 +173,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the notin operator properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['notin', 'id', [5,6]]));
     return when.all([
       expect(dataSets).to.eventually.have.length(4),
@@ -183,7 +183,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the like operator properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['like', 'name', '%Population%']));
     return when.all([
       expect(dataSets).to.eventually.have.length(2),
@@ -193,7 +193,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the nor logical operators properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['nor',
         ['in', 'id', [1,2,3]],
         ['in', 'id', [5,6]]
@@ -206,7 +206,7 @@ describe('Read Methods', function(){
   });
 
   it('should use the deep nesting of logical operators properly', function(){
-    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, 
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType,
       ['or',
         ['and',
           ['like', 'name', '%Population%'],
@@ -230,7 +230,7 @@ describe('Read Methods', function(){
       { sort: querySort.asc('name') }));
 
     return expect(dataSets.then(sets => sets.map(d => d.name))).to.eventually
-      .deep.equal(['Fuel Economy', 'People', 'Population', 
+      .deep.equal(['Fuel Economy', 'People', 'Population',
         'Population by Gender', 'Published, changed', 'Un-published']);
   });
 
@@ -272,8 +272,8 @@ describe('Read Methods', function(){
     const dataSets = task2Promise(entityStorage.query(
       catalog,
       dataSet.entityType,
-      ['>', 'id', 1], 
-      { 
+      ['>', 'id', 1],
+      {
         sort: querySort.asc('name'),
         skip: 1,
         take: 2
@@ -286,7 +286,7 @@ describe('Read Methods', function(){
 
 describe('Create Methods', function(){
 
-  // Before the write tests 
+  // Before the write tests
   // run migrations and seed the test database
   beforeEach(function(done){
     knex.migrate.latest()
@@ -351,22 +351,22 @@ describe('Create Methods', function(){
       expect(results).to.eventually.have.length(3),
 
       expect(results.then(r => r[0])).to.eventually.include({
-        id: 13, 
-        name: 'Year', 
+        id: 13,
+        name: 'Year',
         type: variable.types.categorical,
         scopedDataSet: null
       }),
 
       expect(results.then(r => r[1])).to.eventually.include({
-        id: 14, 
-        name: 'Height', 
+        id: 14,
+        name: 'Height',
         type: variable.types.numerical,
         scopedDataSet: 1
       }),
 
       expect(results.then(r => r[2])).to.eventually.include({
-        id: 7, 
-        name: 'Foo Set', 
+        id: 7,
+        name: 'Foo Set',
         folder: 2
       })
     ]);
@@ -381,7 +381,7 @@ describe('Create Methods', function(){
 
 describe('Update Methods', function(){
 
-  // Before the update tests 
+  // Before the update tests
   // run migrations and seed the test database
   beforeEach(function(done){
     knex.migrate.latest()
@@ -401,7 +401,7 @@ describe('Update Methods', function(){
 
   it('should reject if id is not set', function(){
     const f = folder.new(null, 'Foo Folders');
-    const result = task2Promise(entityStorage.update(catalog, [f])); 
+    const result = task2Promise(entityStorage.update(catalog, [f]));
     expect(result).to.be.rejectedWith(/Database records must not have empty id/);
   });
 
@@ -422,7 +422,7 @@ describe('Update Methods', function(){
     ];
 
     const results = task2Promise(entityStorage.update(catalog, entities));
-    
+
     return when.all([
       expect(results).to.eventually.have.length(2),
 
@@ -460,7 +460,7 @@ describe('Update Methods', function(){
         entityType: variable.entityType,
         type: variable.types.categorical,
         scopedDataSet: null
-      }),      
+      }),
 
       expect(results.then(r => r[1])).to.eventually.contain({
         id: 3,
@@ -468,7 +468,7 @@ describe('Update Methods', function(){
         entityType: variable.entityType,
         type: variable.types.numerical,
         scopedDataSet: 2
-      }),      
+      }),
 
       expect(results.then(r => r[2])).to.eventually.contain({
         id: 4,
@@ -482,7 +482,7 @@ describe('Update Methods', function(){
 
 describe('Delete Methods', function(){
 
-  // Before the update tests 
+  // Before the update tests
   // run migrations and seed the test database
   beforeEach(function(done){
     knex.migrate.latest()
@@ -500,10 +500,10 @@ describe('Delete Methods', function(){
   });
 
   it('should delete single entity in proper table', function(){
-    
+
     const deleteResult = entityStorage.delete(catalog, folder.entityType, [3]);
-    
-    const folderQuery = task2Promise(deleteResult.chain(() => 
+
+    const folderQuery = task2Promise(deleteResult.chain(() =>
       entityStorage.query(catalog, folder.entityType, ['=', 'id', 3])));
 
     return when.all([
@@ -512,22 +512,22 @@ describe('Delete Methods', function(){
   });
 
   it('should delete multiple entities in proper table', function(){
-    
+
     const deleteResult = entityStorage.delete(catalog, attribute.entityType, [8, 9, 10, 11]);
 
     const attributeQuery = task2Promise(
-      deleteResult.chain(() => 
+      deleteResult.chain(() =>
         entityStorage.query(catalog, attribute.entityType, ['in', 'id', [8, 9, 10, 11]])));
 
     return expect(attributeQuery).to.eventually.have.length(0);
   });
 
   it('should ignore bad ids on delete', function(){
-    
+
     const deleteResult = entityStorage.delete(catalog, attribute.entityType, ['', 8, null, 9, 56.7, {}]);
 
     const attributeQuery = task2Promise(
-      deleteResult.chain(() => 
+      deleteResult.chain(() =>
         entityStorage.query(catalog, attribute.entityType, ['in', 'id', [8, 9]])));
 
     return expect(attributeQuery).to.eventually.have.length(0);
@@ -554,13 +554,13 @@ describe('Property tests', function(){
     goodUser = user.setPassword('myPassword123', goodUser);
 
     it('should map the user correctly on insert and read', function(){
-      
+
       const results = entityStorage.create(catalog, [goodUser]);
-      
+
       const users = task2Promise(
-        results.chain(() => 
+        results.chain(() =>
           entityStorage.query(catalog, user.entityType, ['=', 'name', 'Mr. Jones'])));
-      
+
       return when.all([
         expect(users).to.eventually.have.length(1),
         expect(users.then(R.head)).to.eventually.contain({
@@ -589,7 +589,7 @@ describe('Property tests', function(){
     it('should set and retrieve the valid schema', function(){
       const results = entityStorage.create(catalog, [setWithSchema]);
       const dataSets = task2Promise(
-        results.chain(() => 
+        results.chain(() =>
           entityStorage.query(catalog, dataSet.entityType, ['=', 'name', 'Set With Schema'])));
 
       return when.all([
@@ -601,14 +601,14 @@ describe('Property tests', function(){
     it('should set and retrieve null schema', function(){
       const results = entityStorage.create(catalog, [setWithoutSchema]);
       const dataSets = task2Promise(
-        results.chain(() => 
+        results.chain(() =>
           entityStorage.query(catalog, dataSet.entityType, ['=', 'name', 'Set Without Schema'])));
-      
+
       return when.all([
         expect(dataSets).to.eventually.have.length(1),
         expect(dataSets.then(R.head)).to.eventually.have.property('schema').that.is.null
       ]);
-    });      
+    });
   });
 
   describe('Variable', function(){
@@ -642,7 +642,7 @@ describe('Property tests', function(){
       const variables = task2Promise(
         results.chain(() =>
           entityStorage.query(catalog, variable.entityType, ['=', 'name', 'Var. Without Format'])));
-            
+
       return when.all([
         expect(variables).to.eventually.have.length(1),
         expect(variables.then(R.head)).to.eventually.have.property('format').that.is.null

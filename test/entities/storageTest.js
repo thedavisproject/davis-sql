@@ -64,6 +64,15 @@ describe('Read Methods', function(){
     ]);
   });
 
+  it('should get extended_properties', function() {
+
+    const dataSets = task2Promise(entityStorage.query(catalog, dataSet.entityType, ['=', 'id', 1]));
+
+    return expect(dataSets.then(d => d[0])).to.eventually.deep.include({
+      source: 'ACS'
+    });
+  });
+
   it('should get 0 entities with bad id', function(){
     const variables = task2Promise(entityStorage.query(catalog, variable.entityType, ['=', 'id', 5000]));
 
@@ -319,6 +328,26 @@ describe('Create Methods', function(){
     ]);
   });
 
+  it('should store extended_properties', function(){
+    const entity = dataSet.new(null, 'My Data Set', Object.assign({}, dateProps, {source: 'CPS'}));
+    const results = task2Promise(entityStorage.create(catalog, [entity]));
+    return when.all([
+      expect(results.then(R.head)).to.eventually.include({
+        source: 'CPS'
+      })
+    ]);
+  });
+
+  it('should not store extended_properties that arent configured', function(){
+    const entity = dataSet.new(null, 'My Data Set', Object.assign({}, dateProps, {foo: 'bazz'}));
+    const results = task2Promise(entityStorage.create(catalog, [entity]));
+    return when.all([
+      expect(results.then(R.head)).to.eventually.not.include({
+        foo: 'bazz'
+      })
+    ]);
+  });
+
   it('should create multiple entities in proper table', function(){
     const entities = [
       attribute.new(null, 'Ford', 5, dateProps),
@@ -412,6 +441,26 @@ describe('Update Methods', function(){
     return when.all([
       expect(results).to.eventually.have.length(1),
       expect(results.then(R.head)).to.eventually.contain({id: 2, name: 'Population - Updated'})
+    ]);
+  });
+
+  it('should update extended_properties', function(){
+    const entity = dataSet.new(1, 'My Data Set', Object.assign({}, dateProps, {source: 'CPS'}));
+    const results = task2Promise(entityStorage.update(catalog, [entity]));
+    return when.all([
+      expect(results.then(R.head)).to.eventually.include({
+        source: 'CPS'
+      })
+    ]);
+  });
+
+  it('should not update extended_properties that arent configured', function(){
+    const entity = dataSet.new(1, 'My Data Set', Object.assign({}, dateProps, {foo: 'bazz'}));
+    const results = task2Promise(entityStorage.update(catalog, [entity]));
+    return when.all([
+      expect(results.then(R.head)).to.eventually.not.include({
+        foo: 'bazz'
+      })
     ]);
   });
 

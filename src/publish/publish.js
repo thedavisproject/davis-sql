@@ -4,7 +4,7 @@
 //  - This is more performance intensive
 //  - core can figure out what datasets to publish since last full publish
 //  - This code will delete all dps in target for data set and recopy
-const modelMapping = require('../entities/mapping');
+const modelMappingFn = require('../entities/mapping');
 const Task = require('data.task');
 const Async = require('control.async')(Task);
 const when = require('when');
@@ -13,7 +13,9 @@ const shared = require('davis-shared');
 const {toArray} = shared.array;
 const {thread} = shared.fp;
 
-module.exports = (db, storageConfigIgnored) => {
+module.exports = (db, storageConfig) => {
+
+  const modelMapping = modelMappingFn(storageConfig);
 
   const publishEntities = (sourceSchema, targetSchema, types) => {
 

@@ -11,5 +11,13 @@ module.exports = {
   catalogs: {
     source: 'master',
     target: 'web'
+  },
+  customProperties: {
+    folder: [],
+    dataset: [],
+    variable: [],
+    attribute: [],
+    user: [],
+    action: []
   }
 };

@@ -5,12 +5,14 @@ const Async = require('control.async')(Task);
 const shared = require('davis-shared');
 const {thread, either2Task} = shared.fp;
 const model = require('davis-model');
-const modelMapping = require('./mapping');
+const modelMappingFn = require('./mapping');
 const queryParser = require('./queryParser');
 const querySort = model.query.sort;
 const {validateEmptyIds, validateNoEmptyIds} = require('../util');
 
-module.exports = (db, storageConfigIgnored) => {
+module.exports = (db, storageConfig) => {
+
+  const modelMapping = modelMappingFn(storageConfig);
 
   const validateEntityType = (entityType) => {
     if(!modelMapping[entityType]){

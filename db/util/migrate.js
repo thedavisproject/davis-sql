@@ -1,6 +1,6 @@
 module.exports = function(knex) {
 
-  const _createHierarchyColumns = function(schema, t, tableName){
+  const createHierarchyColumns = function(schema, t, tableName){
     t.integer('parent_id')
       .unsigned()
       .references('id')
@@ -10,19 +10,22 @@ module.exports = function(knex) {
       .nullable();
   };
 
-  const _createEntityTable = function(schema, name, callback){
+  const createEntityTable = function(schema, name, callback){
 
     return knex.schema.withSchema(schema).createTable(name, function(t) {
       t.increments('id')
         .primary()
         .index();
-    
+
       t.string('name').notNullable();
 
       t.dateTime('created').notNullable();
 
       t.dateTime('modified').notNullable();
 
+      t.json('extended_properties')
+        .nullable();
+
       if(callback){
         callback(t);
       }
@@ -30,10 +33,10 @@ module.exports = function(knex) {
 
   };
 
-  const _createHierarchyEntityTable = function(schema, name, callback){
+  const createHierarchyEntityTable = function(schema, name, callback){
 
-    return _createEntityTable(schema, name, function(t){
-      _createHierarchyColumns(schema, t, name);
+    return createEntityTable(schema, name, function(t){
+      createHierarchyColumns(schema, t, name);
       if(callback){
         callback(t);
       }
@@ -41,20 +44,20 @@ module.exports = function(knex) {
 
   };
 
-  const _runSequentially = function(queries) {
+  const runSequentially = function(queries) {
     return queries.reduce(function(p, query) {
       return p.then(() => query);
     }, Promise.resolve([]));
   };
 
-  const _runRawSequentially = function(statements) {
-    return _runSequentially(statements.map(s => knex.schema.raw(s)));
+  const runRawSequentially = function(statements) {
+    return runSequentially(statements.map(s => knex.schema.raw(s)));
   };
 
   return {
-    createEntityTable: _createEntityTable,
-    createHierarchyEntityTable: _createHierarchyEntityTable,
-    runSequentially: _runSequentially,
-    runRawSequentially: _runRawSequentially
+    createEntityTable: createEntityTable,
+    createHierarchyEntityTable: createHierarchyEntityTable,
+    runSequentially: runSequentially,
+    runRawSequentially: runRawSequentially
   };
 };

@@ -95,7 +95,7 @@ module.exports = (db, storageConfig) => (transactionScopedFn, timeoutOverride) =
 
   const timeoutValue =
       timeoutOverride ||
-      storageConfig['transaction-timeout'] ||
+      storageConfig['default-transaction-timeout'] ||
       120000;
 
   return new Task((reject, resolve) => {

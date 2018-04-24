@@ -1,9 +1,9 @@
 exports.up = function(knex) {
   const util = require('../util/migrate')(knex);
   return util.createEntityTable('public', 'variables', function(t){
-    
+
     t.integer('type').notNullable();
-    
+
     t.string('key').notNullable();
 
     t.integer('data_set_id')
@@ -13,7 +13,7 @@ exports.up = function(knex) {
       .onDelete('CASCADE')
       .index()
       .nullable();
-  });
+  }, false);
 };
 
 exports.down = function(knex) {

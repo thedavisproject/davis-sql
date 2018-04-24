@@ -3,7 +3,7 @@ exports.up = function(knex) {
   return util.createHierarchyEntityTable('public', 'attributes', function(t){
 
     t.string('key').notNullable();
-  
+
     t.integer('variable_id')
       .unsigned()
       .references('id')
@@ -11,7 +11,7 @@ exports.up = function(knex) {
       .onDelete('CASCADE')
       .index()
       .notNullable();
-  });
+  }, false);
 };
 
 exports.down = function(knex) {

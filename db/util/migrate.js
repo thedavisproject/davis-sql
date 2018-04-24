@@ -10,7 +10,7 @@ module.exports = function(knex) {
       .nullable();
   };
 
-  const createEntityTable = function(schema, name, callback){
+  const createEntityTable = function(schema, name, callback, includeEps = true){
 
     return knex.schema.withSchema(schema).createTable(name, function(t) {
       t.increments('id')
@@ -23,8 +23,10 @@ module.exports = function(knex) {
 
       t.dateTime('modified').notNullable();
 
-      t.json('extended_properties')
-        .nullable();
+      if(includeEps){
+        t.json('extended_properties')
+          .nullable();
+      }
 
       if(callback){
         callback(t);
@@ -33,14 +35,14 @@ module.exports = function(knex) {
 
   };
 
-  const createHierarchyEntityTable = function(schema, name, callback){
+  const createHierarchyEntityTable = function(schema, name, callback, includeEps = true){
 
     return createEntityTable(schema, name, function(t){
       createHierarchyColumns(schema, t, name);
       if(callback){
         callback(t);
       }
-    });
+    }, includeEps);
 
   };
 

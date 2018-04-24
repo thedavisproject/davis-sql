@@ -12,8 +12,7 @@ exports.up = function(knex, Promise) {
       'action_log'
     ].map(tableName =>
       knex.schema.withSchema(schema).table(tableName, function(t){
-        t.json('extended_properties')
-          .nullable();
+        t.json('extended_properties').nullable();
       })))));
 };
 

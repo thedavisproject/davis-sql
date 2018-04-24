@@ -14,8 +14,8 @@ const newSchemaQueries = function(knex, schemaName){
   const util = require('../util/migrate')(knex);
 
   return [
-    util.createHierarchyEntityTable(schemaName, 'folders'),
-    util.createEntityTable(schemaName, 'data_sets', function(t){  
+    util.createHierarchyEntityTable(schemaName, 'folders', null, false),
+    util.createEntityTable(schemaName, 'data_sets', function(t){
       t.json('schema')
         .nullable();
       t.integer('folder_id')
@@ -26,7 +26,7 @@ const newSchemaQueries = function(knex, schemaName){
         .index()
         .nullable();
       t.dateTime('data_modified').nullable();
-    }),
+    }, false),
     util.createEntityTable(schemaName, 'variables', function(t){
       t.integer('type').notNullable();
       t.string('key').notNullable();
@@ -39,9 +39,9 @@ const newSchemaQueries = function(knex, schemaName){
         .nullable();
       t.json('format')
         .nullable();
-    }),
+    }, false),
     util.createHierarchyEntityTable(schemaName, 'attributes', function(t){
-      t.string('key').notNullable();    
+      t.string('key').notNullable();
       t.integer('variable_id')
         .unsigned()
         .references('id')
@@ -49,8 +49,8 @@ const newSchemaQueries = function(knex, schemaName){
         .onDelete('CASCADE')
         .index()
         .notNullable();
-    }),
-    knex.schema.withSchema(schemaName).createTable('facts', function(t) {    
+    }, false),
+    knex.schema.withSchema(schemaName).createTable('facts', function(t) {
       t.integer('data_set_id')
         .unsigned()
         .references('id')
@@ -88,7 +88,7 @@ const newSchemaQueries = function(knex, schemaName){
       t.string('email').notNullable().index();
       t.string('password').notNullable();
       t.boolean('admin').notNullable();
-    })
+    }, false)
   ];
 };
 
@@ -98,14 +98,14 @@ exports.up = function(knex) {
   const queries = R.flatten([
     // Create master schema
     knex.schema.raw('create schema master'),
-    
+
     // Create web schema
     knex.schema.raw('create schema web'),
-    
+
     newSchemaQueries(knex, 'master'),
 
     newSchemaQueries(knex, 'web'),
-    
+
     // Copy data from public -> master
     sourceTables.map(t =>
       knex.schema.raw(`insert into master.${t.name} (select * from public.${t.name})`)),
@@ -126,7 +126,7 @@ exports.down = function(knex) {
   const util = require('../util/migrate')(knex);
 
   const queries = R.flatten([
-   
+
     // Copy tables from master -> public
     newSchemaQueries(knex, 'public'),
 
@@ -136,7 +136,7 @@ exports.down = function(knex) {
 
     // Create master schema
     knex.schema.raw('drop schema master CASCADE'),
-    
+
     // Create web schema
     knex.schema.raw('drop schema web CASCADE')
 

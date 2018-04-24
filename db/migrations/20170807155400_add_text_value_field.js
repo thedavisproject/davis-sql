@@ -1,5 +1,5 @@
 exports.up = function(knex, Promise) {
-  return Promise.all(['master', 'web'].map(schema => 
+  return Promise.all(['master', 'web'].map(schema =>
       knex.schema.withSchema(schema).table('facts', function(t){
         t.renameColumn('value', 'numerical_value');
 
@@ -9,10 +9,9 @@ exports.up = function(knex, Promise) {
 };
 
 exports.down = function(knex, Promise) {
-  return Promise.all(['master', 'web'].map(schema => 
+  return Promise.all(['master', 'web'].map(schema =>
       knex.schema.withSchema(schema).table('facts', function(t){
-        t.renameColumn('numerical_value', 'value')
-          .nullable();
+        t.renameColumn('numerical_value', 'value');
 
         t.dropColumn('text_value');
       })));
